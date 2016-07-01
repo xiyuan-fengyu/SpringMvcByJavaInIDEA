@@ -27,8 +27,10 @@ import org.hibernate.type.StringType;
 import org.hibernate.type.TimestampType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional
 public class Dao {
 	
 	@Autowired
@@ -40,7 +42,7 @@ public class Dao {
 	
 	@SuppressWarnings("unchecked")
 	public <T> ArrayList<T> all(Class<T> clazz, String queryStr) {
-		Session session = getSession();
+		Session session = sessionFactory.getCurrentSession();
 		ArrayList<T> all = null;
 		try {
 			Query query = session.createQuery("from " + clazz.getSimpleName() + " " + queryStr);
@@ -57,14 +59,14 @@ public class Dao {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T find(long id, Class<T> clazz) {
-		Session session = getSession();
+		Session session = sessionFactory.getCurrentSession();
 		Query query = session.createQuery("from " + clazz.getSimpleName() + " where id=" + id);
 		return (T) query.uniqueResult();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> ArrayList<T> query(Class<T> clazz, String queryStr) {
-		Session session = getSession();
+		Session session = sessionFactory.getCurrentSession();
 		ArrayList<T> all = null;
 		try {
 			Query query = session.createQuery("from " + clazz.getSimpleName() + " queryStr");
@@ -84,7 +86,7 @@ public class Dao {
 			sql = sql.replaceAll("_TABLE", tableName);
 		}
 		
-		Session session = getSession();
+		Session session = sessionFactory.getCurrentSession();
 		ArrayList<T> all = null;
 		try {
 			SQLQuery query = session.createSQLQuery(sql);
@@ -179,53 +181,35 @@ public class Dao {
 	}
 	
 	public <T> T insert(T obj) {
-		Session session = getSession();
+		Session session = sessionFactory.getCurrentSession();
 		session.save(obj);
 		return obj;
 	}
 	
 	public <T> void insert(List<T> obj) {
-		Session session = getSession();
+		Session session = sessionFactory.getCurrentSession();
 		for (T t : obj) {
 			session.save(t);
 		}
 	}
 	
 	public <T> T update(T obj) {
-		Session session = getSession();
-		Transaction transaction = session.beginTransaction();
+		Session session = sessionFactory.getCurrentSession();
 		session.update(obj);
-		transaction.commit();
 		return obj;
 	}
 	
 	public <T> void update(ArrayList<T> objs) {
-		Session session = getSession();
-		Transaction transaction = session.beginTransaction();
+		Session session = sessionFactory.getCurrentSession();
 		for (T t : objs) {
 			session.update(t);
 		}
-		transaction.commit();
 	}
 	
 	public <T> boolean delete(T obj) {
-		Session session = getSession();
-		Transaction transaction = session.beginTransaction();
+		Session session = sessionFactory.getCurrentSession();
 		session.delete(obj);
-		transaction.commit();
 		return true;
-	}
-	
-	private Session getSession() {
-		Session session = null;
-		try {
-			session = sessionFactory.getCurrentSession();
-		} catch (Exception e) {
-		}
-		if(session == null || !session.isConnected() || !session.isOpen()) {
-			session = sessionFactory.openSession();
-		}
-		return session;
 	}
 	
 }

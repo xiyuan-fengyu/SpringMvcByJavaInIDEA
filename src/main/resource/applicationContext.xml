@@ -24,6 +24,12 @@
 		http://www.springframework.org/schema/task
 		http://www.springframework.org/schema/task/spring-task-4.3.xsd
 		">
+	<!-- 设置扫描@Controller,@Component, @Repository, @Transactional等注解的目录 -->
+	<context:component-scan base-package="com.xiyuan" />
+	<context:annotation-config />
+
+	<mvc:annotation-driven />
+	<mvc:default-servlet-handler />
 
 	<!-- 配置数据源 -->
  	<bean id="propertyConfigurer"
